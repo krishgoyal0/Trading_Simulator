@@ -3,6 +3,7 @@ package com.k.tradingSimulator.Service;
 import com.k.tradingSimulator.Repository.*;
 import com.k.tradingSimulator.entity.*;
 import com.k.tradingSimulator.entity.Order;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +23,7 @@ public class TradingService {
     @Autowired
     PortfolioService portfolioService;
 
+    @Transactional
     public Order buyStock(Long userId, Long Stockid, int Quantity){
 
         //fetching user, stock, wallet
@@ -45,6 +47,7 @@ public class TradingService {
         return order;
     }
 
+    @Transactional
     public Order sellStock(Long userId, Long Stockid, int Quantity){
         User user = userRepository.findById(userId).orElseThrow(()-> new RuntimeException("User not found"));
         Stock stock = stockRepository.findById(Stockid).orElseThrow(()-> new RuntimeException("Stock not found"));
@@ -63,8 +66,8 @@ public class TradingService {
         System.out.println("📉 SOLD: " + Quantity + " shares of " + stock.getSymbol());
         System.out.println("   Total value: ₹" + totalValue);
 
-        portfolioService.updatePortfolio(user, stock, -Quantity, stock.getPrice());
-
+//        portfolioService.updatePortfolio(user, stock, -Quantity, stock.getPrice());
+        portfolioService.reducePortfolio(user, stock, Quantity);
         return order;
 
     }

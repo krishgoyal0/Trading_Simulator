@@ -1,7 +1,6 @@
 (function () {
   const stocksTableBody = document.getElementById('stocksTableBody');
   const searchInput = document.getElementById('searchInput');
-  // const refreshBtn = document.getElementById('refreshBtn');
   const dashboardBtn = document.getElementById('dashboardBtn');
 
   const tradeModal = document.getElementById('tradeModal');
@@ -13,8 +12,10 @@
   const confirmTradeBtn = document.getElementById('confirmTradeBtn');
   const tradeMessage = document.getElementById('tradeMessage');
 
-  const user = JSON.parse(localStorage.getItem('tradeflow_auth'));
+  const modalTitle = document.getElementById('modalTitle');
+  const totalLabel = document.getElementById('totalLabel');
 
+  const user = JSON.parse(localStorage.getItem('tradeflow_auth'));
 
   const lastUpdatedTime = document.getElementById('lastUpdatedTime');
   const countdownTimer = document.getElementById('countdownTimer');
@@ -26,7 +27,9 @@
 
   let allStocks = [];
   let selectedStock = null;
+  let tradeType = 'buy';
   let previousPrices = {};
+
   function formatCurrency(amount) {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -34,7 +37,6 @@
       maximumFractionDigits: 2
     }).format(amount);
   }
-
 
   async function loadStocks() {
     stocksTableBody.innerHTML = '<tr><td colspan="5" class="loading-cell">Loading market data...</td></tr>';
@@ -51,6 +53,7 @@
       allStocks.sort((a, b) =>
         a.name.localeCompare(b.name)
       );
+
       renderStocks(allStocks);
     } catch (error) {
       console.error('Error loading stocks:', error);
@@ -109,7 +112,7 @@
         ${formatCurrency(currentPrice)} ${arrow}
       </span>
     `;
-  }  
+  }
 
   function renderStocks(stocks) {
     if (!stocks.length) {
@@ -139,12 +142,31 @@
       button.addEventListener('click', function () {
         const symbol = this.dataset.symbol;
         selectedStock = allStocks.find(stock => stock.symbol === symbol);
+        tradeType = 'buy';
+        openModal();
+      });
+    });
+
+    document.querySelectorAll('.sell-btn').forEach(button => {
+      button.addEventListener('click', function () {
+        const symbol = this.dataset.symbol;
+        selectedStock = allStocks.find(stock => stock.symbol === symbol);
+        tradeType = 'sell';
         openModal();
       });
     });
   }
 
   function openModal() {
+    modalTitle.textContent =
+      tradeType === 'buy' ? 'Buy Stock' : 'Sell Stock';
+
+    totalLabel.textContent =
+      tradeType === 'buy' ? 'Total Cost' : 'Total Value';
+
+    confirmTradeBtn.textContent =
+      tradeType === 'buy' ? 'Confirm Buy' : 'Confirm Sell';
+
     modalSymbol.textContent = selectedStock.symbol;
     modalPrice.textContent = formatCurrency(selectedStock.price);
     quantityInput.value = 1;
@@ -168,7 +190,7 @@
     tradeMessage.className = `trade-message ${type}`;
   }
 
-  async function executeBuy() {
+  async function executeTrade() {
     const quantity = Number(quantityInput.value);
 
     if (!quantity || quantity <= 0) {
@@ -177,17 +199,17 @@
     }
 
     try {
-      const response = await fetch('http://localhost:8080/api/trades/buy', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          userId: user.id,
-          symbol: selectedStock.symbol,
-          quantity: quantity
-        })
-      });
+      const endpoint =
+        tradeType === 'buy'
+          ? 'http://localhost:8080/api/trading/buy'
+          : 'http://localhost:8080/api/trading/sell';
+
+      const response = await fetch(
+        `${endpoint}?userId=${user.id}&stockId=${selectedStock.id}&quantity=${quantity}`,
+        {
+          method: 'POST'
+        }
+      );
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -197,11 +219,18 @@
 
       const result = await response.json();
 
-      console.log('Buy order executed:', result);
-      showTradeMessage('Stock purchased successfully.', 'success');
+      console.log(`${tradeType} order executed:`, result);
+
+      showTradeMessage(
+        tradeType === 'buy'
+          ? 'Stock purchased successfully.'
+          : 'Stock sold successfully.',
+        'success'
+      );
 
       setTimeout(() => {
         closeModal();
+        loadStocks();
       }, 1200);
     } catch (error) {
       console.error('Trade error:', error);
@@ -214,13 +243,11 @@
 
     const filtered = allStocks.filter(stock =>
       stock.symbol.toLowerCase().includes(keyword) ||
-      stock.companyName.toLowerCase().includes(keyword)
+      stock.name.toLowerCase().includes(keyword)
     );
 
     renderStocks(filtered);
   });
-
-  // refreshBtn.addEventListener('click', loadStocks);
 
   dashboardBtn.addEventListener('click', function () {
     window.location.href = 'dashboard.html';
@@ -236,10 +263,9 @@
 
   quantityInput.addEventListener('input', updateTotal);
 
-  confirmTradeBtn.addEventListener('click', executeBuy);
+  confirmTradeBtn.addEventListener('click', executeTrade);
 
   loadStocks();
   updateLastUpdatedDisplay();
   startCountdown();
-  // setInterval(loadStocks, 30000);
 })();

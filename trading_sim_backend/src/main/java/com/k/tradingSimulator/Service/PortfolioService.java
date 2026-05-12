@@ -67,13 +67,41 @@ public class PortfolioService {
             portfolio = new Portfolio(user, stock, quantity, price);
         } else {
             //user already owns the stock in this else scenario
-            int newQuantity = portfolio.getQuantity() + quantity;
-            portfolio.setQuantity(newQuantity);
+//            int newQuantity = portfolio.getQuantity() + quantity;
+//            portfolio.setQuantity(newQuantity);
+//
+//            double totalCost = (portfolio.getAverageBuyPrice() * portfolio.getQuantity()) + (price * quantity);
+//            portfolio.setAverageBuyPrice(totalCost / newQuantity);
+            int oldQuantity = portfolio.getQuantity();
+            int newQuantity = oldQuantity + quantity;
 
-            double totalCost = (portfolio.getAverageBuyPrice() * portfolio.getQuantity()) + (price * quantity);
+            double totalCost =
+                    (portfolio.getAverageBuyPrice() * oldQuantity) +
+                            (price * quantity);
+
+            portfolio.setQuantity(newQuantity);
             portfolio.setAverageBuyPrice(totalCost / newQuantity);
         }
-
         portfolioRepository.save(portfolio);
+    }
+
+    @Transactional
+    public void reducePortfolio(User user, Stock stock, int quantity) {
+        Portfolio portfolio = portfolioRepository
+                .findByUserAndStock(user, stock)
+                .orElseThrow(() -> new RuntimeException("You do not own this stock."));
+
+        if (portfolio.getQuantity() < quantity) {
+            throw new RuntimeException("Not enough shares to sell.");
+        }
+
+        int remainingQuantity = portfolio.getQuantity() - quantity;
+
+        if (remainingQuantity == 0) {
+            portfolioRepository.delete(portfolio);
+        } else {
+            portfolio.setQuantity(remainingQuantity);
+            portfolioRepository.save(portfolio);
+        }
     }
 }

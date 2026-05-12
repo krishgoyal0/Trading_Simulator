@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TradeFlow | Dashboard</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" href="CSS/dashboard.css">
+</head>
+<body>
+  <div class="dashboard-container">
+    <header class="topbar">
+      <div>
+        <h1>TradeFlow Dashboard</h1>
+        <p id="welcomeText">Welcome back</p>
+      </div>
+
+      <button id="logoutBtn" class="logout-btn">
+        <i class="fas fa-sign-out-alt"></i>
+        Logout
+      </button>
+    </header>
+
+    <section class="cards-grid">
+      <div class="card highlight-card">
+        <p class="card-label">Wallet Balance</p>
+        <h2 id="walletBalance">₹0.00</h2>
+      </div>
+
+      <div class="card">
+        <p class="card-label">Portfolio Value</p>
+        <h3>₹0.00</h3>
+        <p class="card-note">Coming soon</p>
+      </div>
+
+      <div class="card">
+        <p class="card-label">Total Orders</p>
+        <h3>0</h3>
+        <p class="card-note">Coming soon</p>
+      </div>
+
+      <div class="card">
+        <p class="card-label">Profit / Loss</p>
+        <h3>₹0.00</h3>
+        <p class="card-note">Coming soon</p>
+      </div>
+    </section>
+
+    <section class="actions-section">
+      <h2>Quick Actions</h2>
+
+      <div class="actions-grid">
+        <button class="action-card" id="buyStocksBtn">
+          <i class="fas fa-coins"></i>
+          <span>View Market</span>
+        </button>
+
+        <button class="action-card">
+          <i class="fas fa-chart-pie"></i>
+          <span>View Portfolio</span>
+        </button>
+
+        <button class="action-card">
+          <i class="fas fa-file-invoice"></i>
+          <span>Order History</span>
+        </button>
+
+        <button class="action-card" id="addFundsBtn">
+          <i class="fas fa-wallet"></i>
+          <span>Add Funds</span>
+        </button>
+      </div>
+    </section>
+  </div>
+
+  <script src="JS/dashboard.js"></script>
+</body>
+</html>

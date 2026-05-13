@@ -1,6 +1,7 @@
 package com.k.tradingSimulator.Controller;
 
 import com.k.tradingSimulator.Repository.StockRepository;
+import com.k.tradingSimulator.Service.MarketDataService;
 import com.k.tradingSimulator.Service.StockService;
 import com.k.tradingSimulator.entity.Stock;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +9,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
 @CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/stocks")
@@ -16,7 +19,8 @@ public class StockController {
     StockRepository stockRepository;
     @Autowired
     private StockService stockService;
-
+    @Autowired
+    private MarketDataService marketDataService;
     @GetMapping()
     public List<Stock> getStocks(){
         return stockService.getAllStocks();
@@ -49,6 +53,11 @@ public class StockController {
     public String deleteStock(@PathVariable Long stockId){
         stockService.deleteStock(stockId);
         return "Stock deleted successfully.";
+    }
+
+    @GetMapping("/market-status")
+    public Map<String, Object> getMarketStatus() {
+        return marketDataService.getUSMarketStatus();
     }
 
     @PostMapping("/bulk")

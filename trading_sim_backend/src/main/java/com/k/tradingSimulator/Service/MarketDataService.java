@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import java.util.*;
+import java.util.ArrayList;
 
 @Service
 public class MarketDataService {
@@ -33,5 +34,26 @@ public class MarketDataService {
             System.err.println("Error for " + symbol + ": " + e.getMessage());
             return null;
         }
+    }
+
+    public Map<String, Object> getUSMarketStatus() {
+        String url = "https://finnhub.io/api/v1/stock/market-status?exchange=US&token=" + apiKey;
+
+        try {
+            Map<String, Object> response = restTemplate.getForObject(url, Map.class);
+            System.out.println("📊 Market Status: " + (response != null ? response.get("isOpen") : "Unknown"));
+            return response;
+        } catch (Exception e) {
+            System.err.println("Error fetching market status: " + e.getMessage());
+            return null;
+        }
+    }
+
+    public boolean isUSMarketOpen() {
+        Map<String, Object> status = getUSMarketStatus();
+        if (status != null && status.containsKey("isOpen")) {
+            return (boolean) status.get("isOpen");
+        }
+        return false; // Default to closed if API fails
     }
 }

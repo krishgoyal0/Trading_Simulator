@@ -6,6 +6,8 @@
   const buyStocksBtn = document.getElementById('buyStocksBtn');
   const user = JSON.parse(localStorage.getItem('tradeflow_auth'));
 
+  let stompClient = null;
+
   if (!user || !user.id) {
     window.location.href = 'login.html';
     return;
@@ -21,6 +23,29 @@
     }).format(amount);
   }
 
+  // WebSocket Connection
+  function connectWebSocket() {
+    const socket = new SockJS('http://localhost:8080/ws-stock-updates');
+    stompClient = Stomp.over(socket);
+    
+    stompClient.connect({}, function(frame) {
+      console.log('✅ WebSocket connected for dashboard');
+      
+      stompClient.subscribe('/topic/stock-updates', function(response) {
+        const update = JSON.parse(response.body);
+        console.log('📡 Stock update received, refreshing dashboard...');
+        
+        // Refresh dashboard data
+        loadWalletBalance();
+        loadPortfolioValue();
+      });
+      
+    }, function(error) {
+      console.log('❌ WebSocket error, retrying in 5 seconds...');
+      setTimeout(connectWebSocket, 5000);
+    });
+  }
+
   async function loadWalletBalance() {
     try {
       const response = await fetch(
@@ -32,7 +57,6 @@
       }
 
       const balance = await response.json();
-
       walletBalance.textContent = formatCurrency(balance);
     } catch (error) {
       console.error('Error loading wallet balance:', error);
@@ -51,14 +75,15 @@
       }
 
       const portfolioValue = await response.json();
-
-      document.getElementById('portfolioValue').textContent =
-        formatCurrency(portfolioValue);
+      document.getElementById('portfolioValue').textContent = formatCurrency(portfolioValue);
     } catch (error) {
       console.error('Error loading portfolio value:', error);
       document.getElementById('portfolioValue').textContent = 'Unavailable';
     }
   }
+
+
+  
 
   logoutBtn.addEventListener('click', function () {
     localStorage.removeItem('tradeflow_auth');
@@ -77,6 +102,8 @@
     window.location.href = 'portfolio.html';
   });
 
+  // Initialize
   loadWalletBalance();
   loadPortfolioValue();
+  connectWebSocket();
 })();

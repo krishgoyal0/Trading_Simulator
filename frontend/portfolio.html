@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Portfolio</title>
+    <link rel="stylesheet" href="CSS/portfolio.css">
+</head>
+<body>
+<div class="container">
+
+    <header class="page-header">
+        <div>
+            <p class="page-subtitle">Trading Simulator</p>
+            <h1>My Portfolio</h1>
+        </div>
+        <div class="user-box">
+            <span class="user-label">User</span>
+            <span id="username">Loading...</span>
+        </div>
+    </header>
+
+    <section class="stats-grid">
+        <div class="stat-card">
+            <span class="stat-label">Total Value</span>
+            <span class="stat-value" id="totalValue">$0.00</span>
+        </div>
+
+        <div class="stat-card">
+            <span class="stat-label">P&L</span>
+            <span class="stat-value" id="pnl">$0.00</span>
+        </div>
+
+        <div class="stat-card">
+            <span class="stat-label">Net Worth</span>
+            <span class="stat-value" id="netWorth">$0.00</span>
+        </div>
+    </section>
+
+    <section class="table-card">
+        <div class="table-header">
+            <h2>Holdings</h2>
+        </div>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                <tr>
+                    <th>Stock</th>
+                    <th>Qty</th>
+                    <th>Avg Price</th>
+                    <th>Current</th>
+                    <th>Value</th>
+                    <th>P&L</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+                <tbody id="portfolioBody"></tbody>
+            </table>
+        </div>
+    </section>
+
+</div>
+
+    <script src="JS/portfolio.js"></script>
+    <!-- WebSocket Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+</body>
+</html>

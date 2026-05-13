@@ -75,6 +75,11 @@ body {
   border-color: #3b82f6;
 }
 
+#usaClock {
+    font-family: 'Courier New', monospace;
+    letter-spacing: 1px;
+}
+
 .toolbar {
   display: flex;
   justify-content: space-between;

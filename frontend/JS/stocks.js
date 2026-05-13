@@ -18,7 +18,7 @@
   const user = JSON.parse(localStorage.getItem('tradeflow_auth'));
 
   const lastUpdatedTime = document.getElementById('lastUpdatedTime');
-  const countdownTimer = document.getElementById('countdownTimer');
+  const usaClock = document.getElementById('usaClock');
 
   if (!user || !user.id) {
     window.location.href = 'login.html';
@@ -29,6 +29,7 @@
   let selectedStock = null;
   let tradeType = 'buy';
   let previousPrices = {};
+  let stompClient = null;
 
   function formatCurrency(amount) {
     return new Intl.NumberFormat('en-US', {
@@ -36,6 +37,46 @@
       currency: 'USD',
       maximumFractionDigits: 2
     }).format(amount);
+  }
+
+  function updateLastUpdatedTime() {
+    const now = new Date();
+    lastUpdatedTime.textContent = now.toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true
+    });
+  }
+
+  function updateUsaClock() {
+    const now = new Date();
+    const usaTime = now.toLocaleTimeString('en-US', {
+      timeZone: 'America/New_York',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true
+    });
+    usaClock.textContent = usaTime;
+  }
+
+  function connectWebSocket() {
+    const socket = new SockJS('http://localhost:8080/ws-stock-updates');
+    stompClient = Stomp.over(socket);
+    
+    stompClient.connect({}, function () {
+      console.log('✅ WebSocket connected for stocks');
+      
+      stompClient.subscribe('/topic/stock-updates', function (response) {
+        const update = JSON.parse(response.body);
+        console.log('📡 Stock update received:', update);
+        loadStocks();
+      });
+    }, function () {
+      console.log('❌ WebSocket error, retrying in 5 seconds...');
+      setTimeout(connectWebSocket, 5000);
+    });
   }
 
   async function loadStocks() {
@@ -49,43 +90,13 @@
       }
 
       allStocks = await response.json();
-
-      allStocks.sort((a, b) =>
-        a.name.localeCompare(b.name)
-      );
-
+      allStocks.sort((a, b) => a.name.localeCompare(b.name));
       renderStocks(allStocks);
+      updateLastUpdatedTime();
     } catch (error) {
       console.error('Error loading stocks:', error);
       stocksTableBody.innerHTML = '<tr><td colspan="5" class="loading-cell">Unable to load market data.</td></tr>';
     }
-  }
-
-  function updateLastUpdatedDisplay() {
-    const now = new Date();
-
-    lastUpdatedTime.textContent = now.toLocaleTimeString('en-IN', {
-      hour12: false
-    });
-  }
-
-  let secondsRemaining = 30;
-
-  function startCountdown() {
-    countdownTimer.textContent = `00:${String(secondsRemaining).padStart(2, '0')}`;
-
-    setInterval(() => {
-      secondsRemaining--;
-
-      if (secondsRemaining < 0) {
-        secondsRemaining = 30;
-        loadStocks();
-        updateLastUpdatedDisplay();
-      }
-
-      countdownTimer.textContent =
-        `00:${String(secondsRemaining).padStart(2, '0')}`;
-    }, 1000);
   }
 
   function getPriceCell(stock) {
@@ -158,20 +169,18 @@
   }
 
   function openModal() {
-    modalTitle.textContent =
-      tradeType === 'buy' ? 'Buy Stock' : 'Sell Stock';
-
-    totalLabel.textContent =
-      tradeType === 'buy' ? 'Total Cost' : 'Total Value';
-
-    confirmTradeBtn.textContent =
-      tradeType === 'buy' ? 'Confirm Buy' : 'Confirm Sell';
+    modalTitle.textContent = tradeType === 'buy' ? 'Buy Stock' : 'Sell Stock';
+    totalLabel.textContent = tradeType === 'buy' ? 'Total Cost' : 'Total Value';
+    confirmTradeBtn.textContent = tradeType === 'buy' ? 'Confirm Buy' : 'Confirm Sell';
 
     modalSymbol.textContent = selectedStock.symbol;
     modalPrice.textContent = formatCurrency(selectedStock.price);
+
     quantityInput.value = 1;
     tradeMessage.textContent = '';
+
     updateTotal();
+
     tradeModal.classList.remove('hidden');
   }
 
@@ -199,16 +208,13 @@
     }
 
     try {
-      const endpoint =
-        tradeType === 'buy'
-          ? 'http://localhost:8080/api/trading/buy'
-          : 'http://localhost:8080/api/trading/sell';
+      const endpoint = tradeType === 'buy'
+        ? 'http://localhost:8080/api/trading/buy'
+        : 'http://localhost:8080/api/trading/sell';
 
       const response = await fetch(
         `${endpoint}?userId=${user.id}&stockId=${selectedStock.id}&quantity=${quantity}`,
-        {
-          method: 'POST'
-        }
+        { method: 'POST' }
       );
 
       if (!response.ok) {
@@ -218,13 +224,10 @@
       }
 
       const result = await response.json();
-
       console.log(`${tradeType} order executed:`, result);
 
       showTradeMessage(
-        tradeType === 'buy'
-          ? 'Stock purchased successfully.'
-          : 'Stock sold successfully.',
+        tradeType === 'buy' ? 'Stock purchased successfully.' : 'Stock sold successfully.',
         'success'
       );
 
@@ -240,12 +243,10 @@
 
   searchInput.addEventListener('input', function () {
     const keyword = this.value.toLowerCase();
-
     const filtered = allStocks.filter(stock =>
       stock.symbol.toLowerCase().includes(keyword) ||
       stock.name.toLowerCase().includes(keyword)
     );
-
     renderStocks(filtered);
   });
 
@@ -262,10 +263,13 @@
   });
 
   quantityInput.addEventListener('input', updateTotal);
-
   confirmTradeBtn.addEventListener('click', executeTrade);
 
+  // Initialize clocks
+  updateUsaClock();
+  setInterval(updateUsaClock, 1000);
+
+  // Initialize page
   loadStocks();
-  updateLastUpdatedDisplay();
-  startCountdown();
+  connectWebSocket();
 })();

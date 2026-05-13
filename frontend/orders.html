@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order History</title>
+    <link rel="stylesheet" href="CSS/orders.css">
+</head>
+<body>
+<div class="container">
+
+    <header class="page-header">
+        <div>
+            <p class="page-subtitle">Trading Simulator</p>
+            <h1>Order History</h1>
+        </div>
+        <div class="user-box">
+            <span class="user-label">User</span>
+            <span id="username">Loading...</span>
+        </div>
+    </header>
+
+    <section class="stats-grid">
+        <div class="stat-card">
+            <span class="stat-label">Total Orders</span>
+            <span class="stat-value" id="totalOrders">0</span>
+        </div>
+
+        <div class="stat-card">
+            <span class="stat-label">Buy Orders</span>
+            <span class="stat-value positive" id="buyOrders">0</span>
+        </div>
+
+        <div class="stat-card">
+            <span class="stat-label">Sell Orders</span>
+            <span class="stat-value negative" id="sellOrders">0</span>
+        </div>
+
+        <div class="stat-card">
+            <span class="stat-label">Total Traded</span>
+            <span class="stat-value" id="totalTraded">$0.00</span>
+        </div>
+    </section>
+
+    <section class="table-card">
+        <div class="table-header">
+            <h2>Orders</h2>
+        </div>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Symbol</th>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>Qty</th>
+                    <th>Price</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                </tr>
+                </thead>
+                <tbody id="ordersBody"></tbody>
+            </table>
+        </div>
+    </section>
+
+</div>
+
+<script src="JS/orders.js"></script>
+</body>
+</html>

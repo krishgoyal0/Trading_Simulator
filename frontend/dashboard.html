@@ -62,7 +62,7 @@
           <span>View Portfolio</span>
         </button>
 
-        <button class="action-card">
+        <button class="action-card" id="orderHistoryBtn" onclick="window.location.href='orders.html'">
           <i class="fas fa-file-invoice"></i>
           <span>Order History</span>
         </button>
@@ -76,5 +76,8 @@
   </div>
 
   <script src="JS/dashboard.js"></script>
+  <!-- WebSocket Libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 </body>
 </html>

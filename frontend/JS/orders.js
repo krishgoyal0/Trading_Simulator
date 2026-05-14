@@ -1,5 +1,10 @@
-const USER_ID = 1;
+const authData = JSON.parse(localStorage.getItem('tradeflow_auth'));
+const USER_ID = authData?.id || authData?.user?.id;
 const BASE_URL = 'http://localhost:8080/api/orders';
+
+if (!USER_ID) {
+  window.location.href = 'login.html';
+}
 
 async function fetchJson(url) {
     const response = await fetch(url);

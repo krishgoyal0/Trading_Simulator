@@ -1,12 +1,7 @@
 package com.k.tradingSimulator.Service;
 
-import com.k.tradingSimulator.Repository.PortfolioRepository;
-import com.k.tradingSimulator.Repository.StockRepository;
-import com.k.tradingSimulator.Repository.UserRepository;
-import com.k.tradingSimulator.Repository.WalletRepository;
-import com.k.tradingSimulator.entity.Portfolio;
-import com.k.tradingSimulator.entity.Stock;
-import com.k.tradingSimulator.entity.User;
+import com.k.tradingSimulator.Repository.*;
+import com.k.tradingSimulator.entity.*;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,6 +17,8 @@ public class PortfolioService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private OrderRepository orderRepository;
     @Autowired
     private StockRepository stockRepository;
 
@@ -83,6 +80,29 @@ public class PortfolioService {
             portfolio.setAverageBuyPrice(totalCost / newQuantity);
         }
         portfolioRepository.save(portfolio);
+    }
+
+    public Double getTotalInvested(Long userId) {
+        // First fetch the user object
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Get buy and sell orders for this user
+        List<Order> buyOrders = orderRepository.findByUserAndType(user, OrderType.BUY);
+        List<Order> sellOrders = orderRepository.findByUserAndType(user, OrderType.SELL);
+
+        // Calculate total bought amount
+        double totalBought = buyOrders.stream()
+                .mapToDouble(order -> order.getPrice() * order.getQuantity())
+                .sum();
+
+        // Calculate total sold amount
+        double totalSold = sellOrders.stream()
+                .mapToDouble(order -> order.getPrice() * order.getQuantity())
+                .sum();
+
+        // Net invested = bought - sold
+        return totalBought - totalSold;
     }
 
     @Transactional

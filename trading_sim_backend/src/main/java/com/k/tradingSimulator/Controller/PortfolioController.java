@@ -35,4 +35,9 @@ public class PortfolioController {
                                         @PathVariable Long stockId){
         return portfolioService.checkUserOwnsStock(userId, stockId);
     }
+
+    @GetMapping("/{userId}/invested")
+    public Double getTotalInvested(@PathVariable Long userId) {
+        return portfolioService.getTotalInvested(userId);
+    }
 }

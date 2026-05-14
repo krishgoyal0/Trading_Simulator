@@ -76,8 +76,8 @@ body {
 }
 
 #usaClock {
-    font-family: 'Courier New', monospace;
-    letter-spacing: 1px;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 1px;
 }
 
 .toolbar {
@@ -117,25 +117,6 @@ body {
   color: #64748b;
 }
 
-.market-status {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: #94a3d8;
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.status-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: #22c55e;
-  box-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
-}
-
-/* Update Cards */
-
 .update-info {
   display: flex;
   gap: 0.75rem;
@@ -165,7 +146,97 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
-/* Table */
+.market-session {
+  min-width: 360px;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.9rem 1rem;
+  background: rgba(18, 25, 45, 0.78);
+  border: 1px solid rgba(72, 187, 255, 0.15);
+  border-radius: 1rem;
+}
+
+.session-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.session-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+  color: #e2e8f0;
+  white-space: nowrap;
+}
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.6);
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.status-dot.closed {
+  background: #ef4444;
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.6);
+}
+
+.session-time {
+  font-size: 0.75rem;
+  color: #94a3d8;
+  white-space: nowrap;
+}
+
+.session-bar {
+  position: relative;
+  width: 100%;
+  height: 8px;
+  background: rgba(51, 65, 85, 0.65);
+  border-radius: 999px;
+}
+
+.session-progress {
+  height: 100%;
+  width: 0%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #22c55e 0%, #16a34a 100%);
+  transition: width 1s linear, background 0.3s ease;
+}
+
+.session-progress.closed {
+  background: linear-gradient(90deg, #ef4444 0%, #dc2626 100%);
+}
+
+.session-marker {
+  position: absolute;
+  top: 50%;
+  left: 0%;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 3px solid #22c55e;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 12px rgba(34, 197, 94, 0.45);
+  transition: left 1s linear, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.session-marker.closed {
+  border-color: #ef4444;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.45);
+}
+
+.session-message {
+  font-size: 0.75rem;
+  color: #94a3d8;
+}
 
 .table-section {
   background: rgba(18, 25, 45, 0.78);
@@ -219,39 +290,37 @@ body {
   color: #cbd5e1;
 }
 
-.buy-btn {
+.buy-btn,
+.sell-btn {
   border: none;
-  background: rgba(34, 197, 94, 0.15);
-  color: #86efac;
-  border: 1px solid rgba(34, 197, 94, 0.25);
   border-radius: 999px;
   padding: 0.5rem 1rem;
   font-weight: 700;
   cursor: pointer;
   transition: 0.2s ease;
+}
+
+.buy-btn {
+  background: rgba(34, 197, 94, 0.15);
+  color: #86efac;
+  border: 1px solid rgba(34, 197, 94, 0.25);
 }
 
 .buy-btn:hover {
   background: rgba(34, 197, 94, 0.22);
   transform: translateY(-1px);
 }
-  .sell-btn {
-  border: none;
+
+.sell-btn {
   background: rgba(239, 68, 68, 0.15);
   color: #fca5a5;
   border: 1px solid rgba(239, 68, 68, 0.25);
-  border-radius: 999px;
-  padding: 0.5rem 1rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: 0.2s ease;
 }
 
 .sell-btn:hover {
   background: rgba(239, 68, 68, 0.22);
   transform: translateY(-1px);
 }
-/* Price Movement */
 
 .price-up {
   color: #22c55e !important;
@@ -289,8 +358,6 @@ body {
     transform: scale(1);
   }
 }
-
-/* Modal */
 
 .modal {
   position: fixed;
@@ -410,8 +477,6 @@ body {
   justify-content: center;
 }
 
-/* Responsive */
-
 @media (max-width: 900px) {
   body {
     padding: 1rem;
@@ -433,6 +498,18 @@ body {
     min-width: 0;
   }
 
+  .market-session {
+    min-width: 0;
+    width: 100%;
+    max-width: none;
+  }
+
+  .session-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.35rem;
+  }
+
   .table-section {
     overflow-x: auto;
   }
@@ -440,6 +517,6 @@ body {
   .stocks-table {
     min-width: 760px;
   }
-
-
 }
+
+

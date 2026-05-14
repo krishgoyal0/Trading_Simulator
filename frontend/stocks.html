@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TradeFlow | Market</title>
-
+  <link rel="icon" type="image/png" href="favicon.png">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <link rel="stylesheet" href="CSS/stocks.css">
@@ -12,9 +12,26 @@
 <body>
   <div class="market-container">
     <header class="market-header">
-      <div>
-        <h1>Live Market</h1>
-        <p>Real-time stock prices with virtual trading</p>
+      <div class="market-session">
+        <div class="session-header">
+          <div class="session-status" id="marketStatus">
+            <span class="status-dot" id="marketStatusDot"></span>
+            <span id="marketStatusText">Loading...</span>
+          </div>
+
+          <span class="session-time" id="sessionTimeText">
+            9:30 AM - 4:00 PM ET
+          </span>
+        </div>
+
+        <div class="session-bar">
+          <div class="session-progress" id="sessionProgress"></div>
+          <div class="session-marker" id="sessionMarker"></div>
+        </div>
+
+        <div class="session-message" id="sessionMessage">
+          Checking market status...
+        </div>
       </div>
 
       <div class="header-actions">

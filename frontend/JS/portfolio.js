@@ -1,5 +1,10 @@
-const USER_ID = 1;
+const authData = JSON.parse(localStorage.getItem('tradeflow_auth'));
+const USER_ID = authData?.id || authData?.user?.id;
 const BASE_URL = 'http://localhost:8080/api/portfolio';
+
+if (!USER_ID) {
+  window.location.href = 'login.html';
+}
 
 let stompClient = null;
 
@@ -53,19 +58,25 @@ function connectWebSocket() {
 }
 
 async function loadSummary() {
-    const [portfolioValue, netWorth] = await Promise.all([
+    const [portfolioValue, netWorth, portfolio] = await Promise.all([
         fetchJson(`${BASE_URL}/${USER_ID}/value`),
-        fetchJson(`${BASE_URL}/${USER_ID}/getNetWorth`)
+        fetchJson(`${BASE_URL}/${USER_ID}/getNetWorth`),
+        fetchJson(`${BASE_URL}/${USER_ID}`)
     ]);
 
     document.getElementById('totalValue').textContent = formatCurrency(portfolioValue);
     document.getElementById('netWorth').textContent = formatCurrency(netWorth);
 
-    const pnl = netWorth - portfolioValue;
-    const pnlElement = document.getElementById('pnl');
+    // Calculate P&L from actual holdings
+    let totalPnL = 0;
+    portfolio.forEach(item => {
+        const pnl = (item.stock.price - item.averageBuyPrice) * item.quantity;
+        totalPnL += pnl;
+    });
 
-    pnlElement.textContent = formatPnL(pnl);
-    pnlElement.className = `stat-value ${getPnLClass(pnl)}`;
+    const pnlElement = document.getElementById('pnl');
+    pnlElement.textContent = formatPnL(totalPnL);
+    pnlElement.className = `stat-value ${getPnLClass(totalPnL)}`;
 }
 
 function createActionButtons(portfolioId) {

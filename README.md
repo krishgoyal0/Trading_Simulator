@@ -388,4 +388,3 @@ If this project helped you learn, please give it a ⭐ on GitHub!
 
 ---
 
-**This README will make recruiters stop and read. Copy-paste it to your GitHub!** 🚀

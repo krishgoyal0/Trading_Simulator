@@ -78,31 +78,26 @@
     }
   }
 
-  // Get current time in EST
   function getCurrentEstTime() {
     const now = new Date();
     return new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }));
   }
 
-  // Get market open time for a given date
   function getMarketOpenTime(date) {
     const openTime = new Date(date);
     openTime.setHours(MARKET_OPEN_HOUR, MARKET_OPEN_MINUTE, 0, 0);
     return openTime;
   }
 
-  // Get market close time for a given date
   function getMarketCloseTime(date) {
     const closeTime = new Date(date);
     closeTime.setHours(MARKET_CLOSE_HOUR, MARKET_CLOSE_MINUTE, 0, 0);
     return closeTime;
   }
 
-  // Check if market is open based on time (fallback)
   function isMarketOpenByTime() {
     const estNow = getCurrentEstTime();
     const day = estNow.getDay();
-    // Weekend: Saturday (6) or Sunday (0)
     if (day === 0 || day === 6) return false;
     
     const openTime = getMarketOpenTime(estNow);
@@ -110,7 +105,6 @@
     return estNow >= openTime && estNow <= closeTime;
   }
 
-  // Calculate progress percentage for the bar
   function getMarketProgressPercentage(estNow, openTime, closeTime) {
     if (estNow < openTime) return 0;
     if (estNow > closeTime) return 100;
@@ -119,18 +113,15 @@
     return (elapsed / totalDuration) * 100;
   }
 
-  // Get next market open (for display when closed)
   function getNextMarketOpen() {
     const estNow = getCurrentEstTime();
     const nextOpen = new Date(estNow);
     
-    // If after market close, try tomorrow
     const closeTime = getMarketCloseTime(estNow);
     if (estNow > closeTime) {
       nextOpen.setDate(nextOpen.getDate() + 1);
     }
     
-    // Skip Saturday and Sunday
     while (nextOpen.getDay() === 0 || nextOpen.getDay() === 6) {
       nextOpen.setDate(nextOpen.getDate() + 1);
     }
@@ -140,7 +131,9 @@
   }
 
   function formatMarketTime(date) {
-    if (!date || isNaN(date.getTime())) return 'Unknown';
+    if (!date || isNaN(date.getTime())) {
+      return 'Monday 9:30 AM ET';
+    }
     return date.toLocaleString('en-US', {
       timeZone: 'America/New_York',
       weekday: 'short',
@@ -170,40 +163,38 @@
   }
 
   function updateMarketSessionBar() {
-    // Get current EST time
     const estNow = getCurrentEstTime();
     const openTime = getMarketOpenTime(estNow);
     const closeTime = getMarketCloseTime(estNow);
     
-    // Determine if market is open
     let isOpen = false;
     let sessionType = 'closed';
     let nextEventTime = null;
     let eventType = 'Opens';
     
-    // First try API data (correct field names)
     if (marketStatusData && marketStatusData.isOpen !== undefined) {
       isOpen = marketStatusData.isOpen;
       sessionType = marketStatusData.session || (isOpen ? 'regular' : 'closed');
     } else {
-      // Fallback to time-based calculation
       isOpen = isMarketOpenByTime();
       sessionType = isOpen ? 'regular' : 'closed';
     }
     
-    // Calculate progress percentage
     let progressPercent = 0;
     if (isOpen) {
       progressPercent = getMarketProgressPercentage(estNow, openTime, closeTime);
       nextEventTime = closeTime;
       eventType = 'Closes';
     } else {
-      nextEventTime = getNextMarketOpen();
+      if (marketStatusData && marketStatusData.nextOpen) {
+        nextEventTime = new Date(marketStatusData.nextOpen);
+      } else {
+        nextEventTime = getNextMarketOpen();
+      }
       eventType = 'Opens';
       progressPercent = 0;
     }
     
-    // Update progress bar
     if (sessionProgress) {
       sessionProgress.style.width = `${progressPercent}%`;
       if (isOpen) {
@@ -213,7 +204,6 @@
       }
     }
     
-    // Update marker
     if (sessionMarker) {
       sessionMarker.style.left = `${progressPercent}%`;
       if (isOpen) {
@@ -223,7 +213,6 @@
       }
     }
     
-    // Update status text and dot
     if (marketStatusText) {
       marketStatusText.textContent = isOpen ? 'Market Open' : 'Market Closed';
     }
@@ -236,16 +225,14 @@
       }
     }
     
-    // Update session message
     if (sessionMessage) {
-      if (nextEventTime) {
+      if (nextEventTime && !isNaN(nextEventTime.getTime())) {
         sessionMessage.textContent = `${eventType} ${formatMarketTime(nextEventTime)}`;
       } else {
-        sessionMessage.textContent = isOpen ? 'Regular Trading Hours' : 'Market Closed';
+        sessionMessage.textContent = isOpen ? 'Regular Trading Hours' : 'Opens Monday 9:30 AM ET';
       }
     }
     
-    // Update session time display
     if (sessionTimeText) {
       sessionTimeText.textContent = `${MARKET_OPEN_HOUR}:${MARKET_OPEN_MINUTE.toString().padStart(2, '0')} AM - ${MARKET_CLOSE_HOUR}:${MARKET_CLOSE_MINUTE.toString().padStart(2, '0')} PM ET`;
     }
@@ -444,7 +431,6 @@
     }
   }
 
-  // Event Listeners
   if (searchInput) {
     searchInput.addEventListener('input', function () {
       const keyword = this.value.toLowerCase();
@@ -490,11 +476,9 @@
   loadMarketStatus();
   connectWebSocket();
   
-  // Refresh market status bar every second (for smooth progress animation)
   setInterval(function() {
     updateMarketSessionBar();
   }, 1000);
   
-  // Refresh market status from API every minute
   setInterval(loadMarketStatus, 60000);
 })();

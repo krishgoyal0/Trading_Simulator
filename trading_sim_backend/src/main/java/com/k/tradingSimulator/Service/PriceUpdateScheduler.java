@@ -1,15 +1,16 @@
 package com.k.tradingSimulator.Service;
+
 import com.k.tradingSimulator.DTO.StockUpdateMessage;
 import com.k.tradingSimulator.Repository.StockRepository;
 import com.k.tradingSimulator.entity.Stock;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
-import java.util.List;
+
 import java.util.ArrayList;
-import java.util.Map;
+import java.util.List;
 
 @Service
 @EnableScheduling
@@ -35,7 +36,7 @@ public class PriceUpdateScheduler {
         List<Stock> cryptoStocks = new ArrayList<>();
 
         for (Stock stock : allStocks) {
-            if (stock.getSymbol().contains("BINANCE:")) {
+            if (stock.getSymbol().contains("BINANCE:") || stock.getSymbol().contains("/")) {
                 cryptoStocks.add(stock);
             } else {
                 usStocks.add(stock);
@@ -44,30 +45,19 @@ public class PriceUpdateScheduler {
 
         int totalSuccess = 0;
 
-        // 1. Update Crypto (24/7 - always fetch)
+        // 1. Update Crypto (always fetch)
         if (!cryptoStocks.isEmpty()) {
             System.out.println("📊 Updating " + cryptoStocks.size() + " crypto(s)...");
             totalSuccess += updateStockList(cryptoStocks);
         }
 
-        // 2. Update US Stocks (only if market is open)
+        // 2. Update US Stocks (always fetch)
         if (!usStocks.isEmpty()) {
-            boolean marketOpen = marketDataService.isUSMarketOpen();
-
-            if (marketOpen) {
-                System.out.println("📊 US Market OPEN - Updating " + usStocks.size() + " stock(s)...");
-                totalSuccess += updateStockList(usStocks);
-            } else {
-                Map<String, Object> marketStatus = marketDataService.getUSMarketStatus();
-                String nextOpen = marketStatus != null && marketStatus.containsKey("nextOpen")
-                        ? (String) marketStatus.get("nextOpen") : "Unknown";
-                System.out.println("⏸️ US Market CLOSED. Skipping stock price update.");
-                System.out.println("   🔜 Next open: " + nextOpen);
-                System.out.println("   💡 Crypto still updating 24/7");
-            }
+            System.out.println("📊 Updating " + usStocks.size() + " stock(s)...");
+            totalSuccess += updateStockList(usStocks);
         }
 
-        // Broadcast update if any succeeded
+        // Broadcast if any succeeded
         if (totalSuccess > 0) {
             StockUpdateMessage message = new StockUpdateMessage("STOCK_PRICE_UPDATE", System.currentTimeMillis(), totalSuccess);
             messagingTemplate.convertAndSend("/topic/stock-updates", message);

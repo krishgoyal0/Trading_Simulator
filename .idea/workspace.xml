@@ -5,9 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="fe3890e7-45dc-4a63-a5d6-4b99b1579e59" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/trading_sim_backend/src/main/java/com/k/tradingSimulator/Service/PriceUpdateScheduler.java" beforeDir="false" afterPath="$PROJECT_DIR$/trading_sim_backend/src/main/java/com/k/tradingSimulator/Service/PriceUpdateScheduler.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -88,7 +86,7 @@
       <workItem from="1782933255509" duration="2459000" />
       <workItem from="1782936032706" duration="1084000" />
       <workItem from="1783275556110" duration="1024000" />
-      <workItem from="1783277642518" duration="3000000" />
+      <workItem from="1783277642518" duration="3601000" />
     </task>
     <servers />
   </component>

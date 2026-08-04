@@ -1,10 +1,8 @@
 Here's your **polished, professional README** - ready to impress recruiters:
 
----
 
-```markdown
 
-# 💹 TradeFlow - Trading Simulator Backend
+# TradeFlow - Trading Simulator Backend
 
 
 

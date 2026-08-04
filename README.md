@@ -3,7 +3,10 @@ Here's your **polished, professional README** - ready to impress recruiters:
 ---
 
 ```markdown
+
 # 💹 TradeFlow - Trading Simulator Backend
+
+
 
 A production-grade trading simulator backend with **real-time stock prices**, **WebSocket live updates**, and **complete portfolio management**. Built with Spring Boot, integrated with Finnhub API, and ready for deployment.
 
